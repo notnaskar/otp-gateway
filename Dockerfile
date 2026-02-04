@@ -8,7 +8,7 @@ COPY . .
 
 # Build the binary named 'otpgateway'
 RUN go mod download
-RUN go build -o otpgateway .
+RUN go build -o otpgateway ./cmd/otpgateway
 
 # Stage 2: Create the runtime image
 FROM alpine:latest
