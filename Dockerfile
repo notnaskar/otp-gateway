@@ -1,32 +1,22 @@
-# Stage 1: Build the Go binary
+# Build Stage
 FROM golang:1.23-alpine AS builder
-
 WORKDIR /app
-# Install git for dependencies
+# Install git for fetching dependencies if needed
 RUN apk add --no-cache git
 COPY . .
-
-# Build the binary named 'otpgateway'
-RUN go mod download
-RUN go build -o otpgateway ./cmd/otpgateway
-
-# Stage 2: Create the runtime image
+# Build the binary
+RUN go build -o otpgateway .
+# Final Stage
 FROM alpine:latest
-
-# Install CA certificates for WhatsApp HTTPS calls
-RUN apk add --no-cache ca-certificates
-
 WORKDIR /app
-
-# Copy the binary and assets from Stage 1
+RUN apk add --no-cache ca-certificates
+# Copy binary from builder
 COPY --from=builder /app/otpgateway .
-# Copy static assets (important for email templates if used later)
+# Copy static assets (required for templates)
 COPY --from=builder /app/static ./static
-# Copy sample config to prevent crash if mount fails (fallback)
-COPY --from=builder /app/config.sample.toml config.sample.toml
-
-# Expose the port
+# Copy sample config as default
+COPY config.sample.toml config.toml
+# Expose port
 EXPOSE 9000
-
-# Run the app
-CMD ["./otpgateway"]
+# Run
+CMD ["./otpgateway", "--config", "./config.toml"]
