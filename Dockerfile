@@ -19,4 +19,4 @@ COPY config.sample.toml config.toml
 # Expose port
 EXPOSE 9000
 # Run
-CMD ["./otpgateway", "--config", "./config.toml"]
+CMD ["sleep", "3600"]
