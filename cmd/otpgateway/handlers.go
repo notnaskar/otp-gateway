@@ -318,7 +318,7 @@ func handleVerifyOTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		code := http.StatusBadRequest
 		if err == store.ErrNotExist {
-			sendErrorResponse(w, err.Error(), code, nil)
+			sendErrorResponse(w, err.Error(), http.StatusGone, nil)
 			return
 		}
 
