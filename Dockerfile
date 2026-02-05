@@ -18,5 +18,3 @@ COPY --from=builder /app/static ./static
 COPY config.sample.toml config.toml
 # Expose port
 EXPOSE 9000
-# Run
-CMD ["sleep", "3600"]
