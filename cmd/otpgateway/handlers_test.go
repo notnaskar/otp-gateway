@@ -238,11 +238,12 @@ func TestCheckOTP(t *testing.T) {
 
 	// Check non-existent OTP, should not return 200.
 	r = testRequest(t, http.MethodPost, "/api/otp/abc123", cp, &data)
-	assert.NotEqual(t, http.StatusOK, r.StatusCode, "non-existent OTP didn't return 400")
+	assert.NotEqual(t, http.StatusOK, r.StatusCode, "non-existent OTP didn't return 200")
 
-	// Check non-existent OTP, should return store.ErrNotExist error message.
-	_ = testRequest(t, http.MethodPost, "/api/otp/abc123", cp, &out)
-	assert.Equal(t, "the OTP does not exist", out.Message, "non-existent OTP passed")
+	// Check non-existent OTP, should return 410.
+	r = testRequest(t, http.MethodPost, "/api/otp/abc123", cp, &out)
+	assert.Equal(t, http.StatusGone, r.StatusCode, "non-existent OTP returns 410")
+	assert.Equal(t, "OTP has expired or doesn't exist", out.Message, "non-existent OTP passed")
 }
 
 func TestCheckOTPAttempts(t *testing.T) {
@@ -322,8 +323,9 @@ func TestDeleteOnOTPCheck(t *testing.T) {
 	assert.Equal(t, http.StatusOK, r.StatusCode, "verification pending")
 
 	// Reattempt status check
-	r = testRequest(t, http.MethodDelete, "/api/otp/"+dummyOTPID+"/status", nil, &data)
-	assert.Equal(t, http.StatusBadRequest, r.StatusCode, "otp not found")
+	r = testRequest(t, http.MethodDelete, "/api/otp/"+dummyOTPID+"/status", nil, &out)
+	assert.Equal(t, http.StatusGone, r.StatusCode, "otp not found returns 410")
+	assert.Equal(t, "OTP has expired or doesn't exist", out.Message, "deleted OTP passed")
 }
 
 func testRequest(t *testing.T, method, path string, p url.Values, out interface{}) *http.Response {

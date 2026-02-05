@@ -8,7 +8,7 @@ import (
 
 // ErrNotExist is thrown when an OTP (requested by namespace / ID)
 // does not exist.
-var ErrNotExist = errors.New("the OTP does not exist")
+var ErrNotExist = errors.New("OTP has expired or doesn't exist")
 
 const (
 	CounterAttempts = "attempts"
