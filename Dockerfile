@@ -5,7 +5,8 @@ WORKDIR /app
 RUN apk add --no-cache git
 COPY . .
 # Build the binary
-RUN go build -o otpgateway .
+RUN go build -o otpgateway ./cmd/otpgateway
+
 # Final Stage
 FROM alpine:latest
 WORKDIR /app
@@ -14,9 +15,16 @@ RUN apk add --no-cache ca-certificates
 COPY --from=builder /app/otpgateway .
 # Copy static assets (required for templates)
 COPY --from=builder /app/static ./static
-# Copy sample config as default
+
+# Copy config.toml if it exists locally during build, 
+# otherwise the user must mount it or it will fail if not found.
+# COPY config.toml config.toml 
+
+# Copy sample config as default (prevents build failure if config.toml is ignored)
 COPY config.sample.toml config.toml
+
 # Expose port
 EXPOSE 9000
+
 # Run
 CMD ["./otpgateway", "--config", "./config.toml"]
